@@ -14,4 +14,29 @@ class NoteService {
     final List<dynamic> decodedData = jsonDecode(notesString);
     return decodedData.map((item) => Note.fromMap(item)).toList();
   }
+
+  static Future<void> saveNotes(List<Note> notes) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encodedData = jsonEncode(
+      notes.map((note) => note.toMap()).toList(),
+    );
+    await prefs.setString(_key, encodedData);
+  }
+
+  static Future<void> addNote(Note newNote) async {
+    final List<Note> currentNotes = await getNotes();
+    currentNotes.add(newNote);
+    await saveNotes(currentNotes);
+  }
+
+  static Future<void> deleteNote(Note noteToDelete) async {
+    final List<Note> currentNotes = await getNotes();
+
+    currentNotes.removeWhere((note) =>
+      note.title == noteToDelete.title &&
+      note.updatedAt == noteToDelete.updatedAt
+    );
+
+    await saveNotes(currentNotes);
+  }
 }

@@ -3,15 +3,17 @@ import 'dart:convert';
 class Note {
   String title;
   String content;
-  DateTime date;
+  DateTime createdAt;
+  DateTime updatedAt;
 
-  Note({required this.title, required this.content, required this.date});
+  Note({required this.title, required this.content, required this.createdAt, required this.updatedAt});
 
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'content': content,
-      'date': date.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
@@ -19,7 +21,8 @@ class Note {
     return Note(
       title: map['title'],
       content: map['content'],
-      date: DateTime.parse(map['date']),
+      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(map['updatedAt'] ?? DateTime.now().toIso8601String()),
     );
   }
 }
