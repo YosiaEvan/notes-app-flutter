@@ -3,30 +3,42 @@ import 'package:notes_app/models/note_model.dart';
 import 'package:notes_app/services/note_service.dart';
 
 class AddNotePage extends StatefulWidget {
-  const AddNotePage({super.key});
+  final Note? note;
+  const AddNotePage({super.key, this.note});
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
 }
 
 class _AddNotePageState extends State<AddNotePage> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _contentController = TextEditingController();
+  late TextEditingController _titleController = TextEditingController();
+  late TextEditingController _contentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.note?.title ?? "");
+    _contentController = TextEditingController(text: widget.note?.content ?? "");
+  }
 
   void _handleSave() async {
-    if (_titleController.text.isEmpty && _contentController.text.isEmpty) {
-      Navigator.pop(context);
-      return;
-    }
+    final String title = _titleController.text;
+    final String content = _contentController.text;
 
-    Note newNote = Note(
-      title: _titleController.text.isEmpty ? "Tanpa Judul" : _titleController.text,
-      content: _contentController.text,
-      createdAt: DateTime.now(),
+    if (title.isEmpty || content.isEmpty) return;
+
+    final updatedNote = Note(
+      title: title,
+      content: content,
+      createdAt: widget.note?.createdAt ?? DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    await NoteService.addNote(newNote);
+    if (widget.note != null) {
+      await NoteService.updateNote(widget.note!, updatedNote);
+    } else {
+      await NoteService.addNote(updatedNote);
+    }
 
     if (mounted) {
       Navigator.pop(context, true);

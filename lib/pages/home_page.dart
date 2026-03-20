@@ -31,6 +31,62 @@ class _HomePageState extends State<HomePage> {
     _refreshNotes();
   }
 
+  void _showSuccessAddAlert(BuildContext context) {
+    final overlay = Overlay.of(context);
+
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 20,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Color(0xff22c55e),
+                  size: 16,
+                ),
+                SizedBox(width: 16,),
+                Text(
+                  "Catatan ditambahkan",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      )
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 3), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Note> sortedNotes = List.from(notes)..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -75,123 +131,137 @@ class _HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: notes.isNotEmpty ? ListView.separated(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.all(20),
-                  itemBuilder: (content, index) {
-                    int reversedIndex = sortedNotes.length - index - 1;
-                    final note = sortedNotes[index];
+                shrinkWrap: true,
+                padding: EdgeInsets.only(
+                  top: 20,
+                  right: 20,
+                  bottom: 120,
+                  left: 20,
+                ),
+                itemBuilder: (content, index) {
+                  int reversedIndex = sortedNotes.length - index - 1;
+                  final note = sortedNotes[index];
 
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Color(0xff6a7282),
-                          width: 1.0,
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Color(0xff6a7282),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.only(top: 8, right: 4, bottom: 8, left: 16),
+                      title: Text(
+                        note.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.only(top: 8, right: 4, bottom: 8, left: 16),
-                        title: Text(
-                          note.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 4,),
-                            Text(
-                              note.content,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Color(0xff6a7282),
-                              ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 4,),
+                          Text(
+                            note.content,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Color(0xff6a7282),
                             ),
-                            SizedBox(height: 8,),
-                            Text(
-                              "${note.updatedAt.day}/${note.updatedAt.month}/${note.updatedAt.year}",
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Color(0xff6a7282),
-                                fontSize: 12,
-                              ),
+                          ),
+                          SizedBox(height: 8,),
+                          Text(
+                            "${note.updatedAt.day}/${note.updatedAt.month}/${note.updatedAt.year}",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Color(0xff6a7282),
+                              fontSize: 12,
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        trailing: PopupMenuButton<String>(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          color: Colors.white,
-                          icon: Icon(
-                            Icons.more_vert,
-                            color: Color(0xff6a7282),
-                          ),
-                          onSelected: (value) {
-                            if (value == 'edit') {
+                        color: Colors.white,
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Color(0xff6a7282),
+                        ),
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            final bool? isEdited = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddNotePage(note: note),
+                              ),
+                            );
 
-                            } else if (value == 'delete') {
-                              _deleteNote(note);
+                            if (isEdited == true) {
+                              _refreshNotes();
                             }
-                          },
-                          itemBuilder: (BuildContext context) => [
-                            PopupMenuItem<String>(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.edit_outlined,
-                                      size: 20,
-                                      color: Colors.black,
+                          } else if (value == 'delete') {
+                            _deleteNote(note);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(width: 8,),
+                                  Text(
+                                    'Edit',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.normal,
                                     ),
-                                    SizedBox(width: 8,),
-                                    Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                            PopupMenuItem<String>(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete_outline,
-                                      size: 20,
+                                  ),
+                                ],
+                              )
+                          ),
+                          PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                    color: Color(0xfffb2c36),
+                                  ),
+                                  SizedBox(width: 8,),
+                                  Text(
+                                    'Hapus',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.normal,
                                       color: Color(0xfffb2c36),
                                     ),
-                                    SizedBox(width: 8,),
-                                    Text(
-                                      'Hapus',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal,
-                                        color: Color(0xfffb2c36),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ),
-                          ],
-                        ),
+                                  ),
+                                ],
+                              )
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  separatorBuilder: (context, index) => SizedBox(height: 16,),
-                  itemCount: sortedNotes.length
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) => SizedBox(height: 16,),
+                itemCount: sortedNotes.length
               ) : Text(""),
-            )
+            ),
           ],
         )
       ),
@@ -206,6 +276,10 @@ class _HomePageState extends State<HomePage> {
 
             if (isSaved == true) {
               _refreshNotes();
+
+              if (context.mounted) {
+                _showSuccessAddAlert(context);
+              }
             }
           },
           backgroundColor: Color(0xff2b7fff),

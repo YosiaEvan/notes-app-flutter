@@ -28,6 +28,19 @@ class NoteService {
     currentNotes.add(newNote);
     await saveNotes(currentNotes);
   }
+  
+  static Future<void> updateNote(Note oldNote, Note updatedNote) async {
+    final List<Note> allNotes = await getNotes();
+
+    int index = allNotes.indexWhere((n) =>
+      n.title == oldNote.title && n.createdAt == oldNote.createdAt
+    );
+
+    if (index != -1) {
+      allNotes[index] = updatedNote;
+      await saveNotes(allNotes);
+    }
+  }
 
   static Future<void> deleteNote(Note noteToDelete) async {
     final List<Note> currentNotes = await getNotes();
