@@ -262,6 +262,7 @@ class _HomePageState extends State<HomePage> {
 
                             if (isEdited == true) {
                               _refreshNotes();
+                              _showSuccessUpdateAlert(context);
                             }
                           } else if (value == 'delete') {
                             _deleteNote(note);
