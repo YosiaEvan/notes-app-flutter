@@ -87,6 +87,62 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _showSuccessUpdateAlert(BuildContext context) {
+    final overlay = Overlay.of(context);
+
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+        builder: (context) => Positioned(
+          bottom: 20,
+          left: 20,
+          right: 20,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Color(0xff22c55e),
+                    size: 16,
+                  ),
+                  SizedBox(width: 16,),
+                  Text(
+                    "Catatan diperbarui",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        )
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(Duration(seconds: 3), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Note> sortedNotes = List.from(notes)..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -213,45 +269,45 @@ class _HomePageState extends State<HomePage> {
                         },
                         itemBuilder: (BuildContext context) => [
                           PopupMenuItem<String>(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit_outlined,
-                                    size: 20,
-                                    color: Colors.black,
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.edit_outlined,
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
+                                SizedBox(width: 8,),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
                                   ),
-                                  SizedBox(width: 8,),
-                                  Text(
-                                    'Edit',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              )
+                                ),
+                              ],
+                            )
                           ),
                           PopupMenuItem<String>(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete_outline,
-                                    size: 20,
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                  color: Color(0xfffb2c36),
+                                ),
+                                SizedBox(width: 8,),
+                                Text(
+                                  'Hapus',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
                                     color: Color(0xfffb2c36),
                                   ),
-                                  SizedBox(width: 8,),
-                                  Text(
-                                    'Hapus',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.normal,
-                                      color: Color(0xfffb2c36),
-                                    ),
-                                  ),
-                                ],
-                              )
+                                ),
+                              ],
+                            )
                           ),
                         ],
                       ),
